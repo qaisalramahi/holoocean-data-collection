@@ -657,7 +657,7 @@ engine/data/single_object_scenarios/
         orient_8/
   cluster/
     objects_inputRGB/
-      {object}_only_5m_deep_orient1.npy         (≤24, 128, 128, 3) uint8
+      {object}_only_5m_deep_orient1.npy         (24, 128, 128, 3) uint8
       {object}_only_5m_deep_orient2.npy
       ...
       {object}_only_6m_deep_orient1.npy
