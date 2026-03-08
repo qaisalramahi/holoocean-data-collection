@@ -121,7 +121,7 @@ The `ImagingSonar` implements acoustic multi-path propagation using an octree ac
 
 ### live_view.py — Pose Authoring Tool
 
-**Purpose:** Interactive tool for manually placing the BlueROV2 (`auv0`) and the camera rig (`sphere0`) at the 8 desired orientations around the target object, then saving those poses to a JSON bookmark file for use by the data collection scripts.
+**Purpose:** Interactive tool for manually placing the BlueROV2 (`auv0`) and the camera rig (`sphere0`) at the 8 desired orientations around the target object, then saving those poses to a JSON bookmark file for use by the data collection scripts. The purpose of this script is to ensure that the final sonar frame originates from the same position as DepthCam4, as required by the methodology. So that when fed into a model it takes that sonar image and outputs its corresponding depth image, therefore the ROV had to be placed initially at the `exact` pose of depthcam4.
 
 #### How to run
 
@@ -142,7 +142,6 @@ The UE5 viewport opens. Use the keyboard to drive the agents and compose each or
 | `I`/`K` | Ascend / descend (vertical thrusters) |
 | `J`/`L` | Yaw left / right |
 | `u` | Auto-orbit: step both agents to the next of 8 evenly-spaced orientations (45° increments) |
-| `z` | Rebase orbit — latch the current poses as the new orbit origin |
 | `b` | Save a bookmark for the current pose of both agents |
 | `n` / `m` | Select previous / next bookmark |
 | `t` | Teleport both agents to the currently selected bookmark |
