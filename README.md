@@ -106,10 +106,10 @@ The `ImagingSonar` implements acoustic multi-path propagation using an octree ac
 | `RangeBins` / `AzimuthBins` | Resolution of the returned intensity array |
 | `RangeMin` / `RangeMax` | Acoustic gate in metres |
 | `Elevation` / `Azimuth` | Beam half-angles in degrees |
-| `InitOctreeRange` | Octree initialization depth (larger = more distant geometry) |
+| `InitOctreeRange` | Mid-level Octree initialization depth |
 | `ScaleNoise`, `AddSigma`, `MultSigma`, `RangeSigma` | Additive and multiplicative noise parameters |
 | `MultiPath` | Enable/disable multi-path reflections |
-| `AzimuthStreaks` | Streak artifact simulation (-1 = disabled) |
+| `AzimuthStreaks` | Streak artifact simulation (-1 = removal artifact) |
 
 ---
 
