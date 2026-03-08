@@ -287,8 +287,8 @@ Frame numbering counts **down** from 24 (`number = 24 - len(sonar_imgs)`) so tha
 
 #### Output
 
-- **Per-frame JPEGs:** `{main_path}/airplane_only/6m_deep/sonar/orient_{k}/FLSc_{n}.jpg` (1500×1500 px, grayscale)
-- **Per-orientation NPY stack:** `{main_path}/cluster/objects_inputRGB/airplane_only_6m_deep_orient{k}.npy` (shape `(≤24, 128, 128, 3)`, `uint8`)
+- **Per-frame JPEGs:** `{main_path}/{object}_only/6m_deep/sonar/orient_{k}/FLSc_{n}.jpg` (1500×1500 px, grayscale)
+- **Per-orientation NPY stack:** `{main_path}/cluster/objects_inputRGB/{object}_only_6m_deep_orient{k}.npy` (shape `(≤24, 128, 128, 3)`, `uint8`)
 
 where `{main_path}` = `C:\Users\ramah\holooceanv2.0.1\engine\data\single_object_scenarios`.
 
@@ -337,8 +337,8 @@ This differs from the 6m version where the direction is derived from the ROV's y
 
 #### Output
 
-- **JPEGs:** `{main_path}/airplane_only/5m_deep/sonar/orient_{k}/FLSc_{n}.jpg`
-- **NPY stack:** `{main_path}/cluster/objects_inputRGB/airplane_only_5m_deep_orient{k}.npy`
+- **JPEGs:** `{main_path}/{object}_only/5m_deep/sonar/orient_{k}/FLSc_{n}.jpg`
+- **NPY stack:** `{main_path}/cluster/objects_inputRGB/{object}_only_5m_deep_orient{k}.npy`
 
 ---
 
@@ -388,7 +388,7 @@ For each orientation `k`:
 1. Reads `rov_pos`, `rov_rot`, `sphere_pos`, `sphere_rot` from `pose_bookmarks_5m.json`.
 2. Teleports both `auv0` and `sphere0` simultaneously.
 3. Runs 5 warmup ticks.
-4. Calls `save_depth_data(state, main_path, k+1, "airplane_only_5m_deep")`.
+4. Calls `save_depth_data(state, main_path, k+1, "{object}_only_5m_deep")`.
 5. Advances to the next orientation (or returns to TELEOP).
 
 #### Depth post-processing pipeline
@@ -444,7 +444,7 @@ The 8 depth maps are stacked in camera index order (1–8) into a single MATLAB 
 
 #### Output
 
-- **MAT file:** `{main_path}/cluster/objects_depth_fixed8/airplane_only_5m_deep_depth_orient{k}.mat`
+- **MAT file:** `{main_path}/cluster/objects_depth_fixed8/{object}_only_5m_deep_depth_orient{k}.mat`
   - Key `"Z"`: shape `(8, 256, 256)`, `float32`, depth in metres
 
 where `{main_path}` = `C:\Users\ramah\holooceanv2.0.1\engine\data\single_object_scenarios`.
@@ -465,13 +465,13 @@ where `{main_path}` = `C:\Users\ramah\holooceanv2.0.1\engine\data\single_object_
 | Bookmark file | `pose_bookmarks_5m.json` | `pose_bookmarks_6m.json` |
 | `yaw_from_T()` euler order | `"zyx"`, radians | `"xyz"`, degrees |
 | Seam blur margin | 1 row | 3 rows |
-| Scenario name passed to save | `"airplane_only_5m_deep"` | `"airplane_only_6m_deep"` |
+| Scenario name passed to save | `"{object}_only_5m_deep"` | `"{object}_only_6m_deep"` |
 
 Note that `yaw_from_T()` is defined in both scripts but is not called in the main capture path (it appears in commented-out debug code). The difference in euler convention is therefore not functionally active in the current code.
 
 #### Output
 
-- **MAT file:** `{main_path}/cluster/objects_depth_fixed8/airplane_only_6m_deep_depth_orient{k}.mat`
+- **MAT file:** `{main_path}/cluster/objects_depth_fixed8/{object}_only_6m_deep_depth_orient{k}.mat`
 
 ---
 
@@ -643,7 +643,7 @@ The point cloud is serialized to a temporary `.ply` file and the child process r
 
 ```
 engine/data/single_object_scenarios/
-  airplane_only/
+  {object}_only/
     5m_deep/
       sonar/
         orient_1/  FLSc_1.jpg … FLSc_24.jpg    (1500×1500 px, grayscale)
@@ -657,15 +657,15 @@ engine/data/single_object_scenarios/
         orient_8/
   cluster/
     objects_inputRGB/
-      airplane_only_5m_deep_orient1.npy         (≤24, 128, 128, 3) uint8
-      airplane_only_5m_deep_orient2.npy
+      {object}_only_5m_deep_orient1.npy         (≤24, 128, 128, 3) uint8
+      {object}_only_5m_deep_orient2.npy
       ...
-      airplane_only_6m_deep_orient1.npy
+      {object}_only_6m_deep_orient1.npy
       ...
     objects_depth_fixed8/
-      airplane_only_5m_deep_depth_orient1.mat   Z: (8, 256, 256) float32 metres
+      {object}_only_5m_deep_depth_orient1.mat   Z: (8, 256, 256) float32 metres
       ...
-      airplane_only_6m_deep_depth_orient1.mat
+      {object}_only_6m_deep_depth_orient1.mat
       ...
 ```
 
@@ -707,15 +707,11 @@ The loader in all scripts handles both a raw list `[...]` and the wrapped `{"boo
 
 ### Why two sweep direction strategies?
 
-The 6m script uses the ROV's yaw as the sweep axis (backward from where it is pointing) while the 5m script uses the geometric vector from the object center to the ROV. Both achieve the same goal — moving the sonar away from the target — but the radial approach in the 5m script is more reliable when bookmarked poses are slightly misaligned with the true facing direction. If the yaw were used and the ROV were placed at a slightly wrong angle, the sweep would not be truly radial.
+The 6m script uses the ROV's yaw as the sweep axis (backward from where it is pointing) while the 5m script uses the geometric vector from the object center to the ROV. Both achieve the same goal — moving the sonar away from the target —  but I realised the PD control during the 6m was swaying left and right too much and so I decided making that change in design.
 
 ### Why does frame numbering count down?
 
-In `linear_sweep_orientations8_6m.py` and `_5m.py`, `number = MAX_FRAMES - len(sonar_imgs)` means the first captured frame is saved as `FLSc_24.jpg` and the last is `FLSc_1.jpg`. This convention places the frame with the least accumulated sonar noise (fewest multiple-reflections at the start of the sweep, when range to target is maximum) at a high index, and the closest-range frame — which typically has the sharpest highlight — at index 1.
-
-### Octree accelerator
-
-The sonar simulation uses an octree to spatially index scene geometry for ray intersection. `octree_min` and `octree_max` in the scenario config control the octree leaf and max depth, while `InitOctreeRange` in the sonar config controls how far the octree is initialized at scenario startup. Setting `InitOctreeRange` too small misses geometry at longer ranges; too large increases startup time. The 5m config uses `InitOctreeRange=30` (to cover the longer 8m range) vs `InitOctreeRange=20` for the 6m config.
+In `linear_sweep_orientations8_6m.py` and `_5m.py`, `number = MAX_FRAMES - len(sonar_imgs)` means the first captured frame is saved as `FLSc_24.jpg` and the last is `FLSc_1.jpg`. This was deliberately done by design in order to have the final frame be the closest one to the target object 
 
 ### Depth seam artifacts
 
