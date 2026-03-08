@@ -6,12 +6,29 @@ This directory contains Python scripts for collecting, processing, and visualizi
 
 ![HoloOcean Data Collection](image.png)
 
+## Data Capture Methodology
+
+### Forward-Looking Sonar (FLS) Scanning
+
+- Linear sweep toward each target, 24 equal steps, one acoustic frame per step
+- Sequence bounded by the object's sonar FOV entry/exit — ensures full scan across trajectory
+- Captures changing shadow patterns and geometric appearance shifts as viewpoint moves (valuable for learning-based models)
+
+### Depth Camera Array
+
+- 8 depth cameras on a circular arc (~3 m radius) around each object
+- Specs: 256×256 resolution, 60° FOV per camera
+- Together provide 180° perspective; all 8 images captured simultaneously per scenario
+
+---
+
 ## Table of Contents
 
-1. [Project Architecture](#project-architecture)
-2. [Prerequisites and Installation](#prerequisites-and-installation)
-3. [Simulator Concepts](#simulator-concepts)
-4. [Script Reference](#script-reference)
+1. [Data Capture Methodology](#data-capture-methodology)
+2. [Project Architecture](#project-architecture)
+3. [Prerequisites and Installation](#prerequisites-and-installation)
+4. [Simulator Concepts](#simulator-concepts)
+5. [Script Reference](#script-reference)
    - [live_view.py — Pose Authoring Tool](#live_viewpy--pose-authoring-tool)
    - [linear_sweep_orientations8_6m.py — Sonar Sweep at 6 m Depth](#linear_sweep_orientations8_6mpy--sonar-sweep-at-6-m-depth)
    - [linear_sweep_orientations8_5m.py — Sonar Sweep at 5 m Depth](#linear_sweep_orientations8_5mpy--sonar-sweep-at-5-m-depth)
@@ -19,9 +36,9 @@ This directory contains Python scripts for collecting, processing, and visualizi
    - [depth_image_capture_6m.py — Depth Camera Capture at 6 m](#depth_image_capture_6mpy--depth-camera-capture-at-6-m)
    - [reconstruct_data_1.py — 3D Point Cloud Reconstruction](#reconstruct_data_1py--3d-point-cloud-reconstruction)
    - [dataset_gui_open3d.py — Dataset Visualization GUI](#dataset_gui_open3dpy--dataset-visualization-gui)
-5. [Data Output Structure](#data-output-structure)
-6. [Pose Bookmark Format](#pose-bookmark-format)
-7. [Engineering Notes](#engineering-notes)
+6. [Data Output Structure](#data-output-structure)
+7. [Pose Bookmark Format](#pose-bookmark-format)
+8. [Engineering Notes](#engineering-notes)
 
 ---
 
