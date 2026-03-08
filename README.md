@@ -4,6 +4,8 @@ This directory contains Python scripts for collecting, processing, and visualizi
 
 ---
 
+![HoloOcean Data Collection](image.png)
+
 ## Table of Contents
 
 1. [Project Architecture](#project-architecture)
@@ -720,15 +722,3 @@ UE5's depth buffer rendering has a known artifact where adjacent internal render
 ### Subprocess isolation for Open3D
 
 On Linux/X11 systems, mixing a Tkinter event loop with an Open3D `Visualizer` window in the same process causes `BadWindow` X errors when Tkinter destroys and recreates widgets while Open3D holds a reference to an X11 surface. The subprocess approach in `dataset_gui_open3d.py` sidesteps this by giving Open3D exclusive ownership of its X11 connection in a child process. The `.ply` handoff through the filesystem is cheap (a few MB for typical point clouds) and adds negligible latency.
-
-### Coordinate frame conventions
-
-| Frame | X | Y | Z |
-|---|---|---|---|
-| UE5 world | forward (north) | right (east) | up |
-| `PoseSensor` output | 4×4 transform, same convention | | |
-| Depth camera | depth (forward) | right | up (negated v) |
-| `reconstruct3d` input yaw | rotation around world Z (up) axis, radians | | |
-| Open3D display | right-hand Y-up | | |
-
-The −90° X-axis rotation in `display_pointcloud` converts from UE5's Z-up to Open3D's Y-up convention.
